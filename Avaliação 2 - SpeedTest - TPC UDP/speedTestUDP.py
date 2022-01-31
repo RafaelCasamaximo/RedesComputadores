@@ -61,7 +61,7 @@ class SpeedTesterUDP:
         bytesNumber = 0
 
         print('-Aguardando por conexão...')
-        self.socket.bind('', self.port)
+        self.socket.bind(('', self.port))
 
         data, addr = self.socket.recvfrom(1)
 
@@ -115,7 +115,7 @@ class SpeedTesterUDP:
         packageNumber = 0
         bytesNumber = 0
 
-        addr = (ip, self.port2)
+        addr = (ip, self.port)
 
         self.socket2.sendto('1'.encode('ascii'), addr)
 
