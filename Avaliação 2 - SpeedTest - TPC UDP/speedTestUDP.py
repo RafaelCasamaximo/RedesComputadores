@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from tqdm import tqdm
 from email import message
 from socket import *
 import time
@@ -65,8 +66,9 @@ class SpeedTesterUDP:
 
         data, addr = self.socket.recvfrom(1)
 
-        if data.decode('ascii') != 1:
+        if data.decode('ascii') != '1':
             print('-Ocorreu um erro na conexão!')
+            input()
             return
 
         print('-Conexão estabelecida com sucesso!')
@@ -75,19 +77,22 @@ class SpeedTesterUDP:
 
         # Speed Test
         # Enquanto o tempo de testagem for menor que 20 segundos
-        while time.time() - startTime < 20:
-            # Recebe dados
-            data, addr = self.socket.recvfrom(packageSize)
+        with tqdm(total=20) as pbar:
+            while time.time() - startTime < 20:
+                # Recebe dados
+                data, addr = self.socket.recvfrom(packageSize, timeout=2)
 
-            # Verifica se os dados chegaram
-            if not data:
-                print('-Ocorreu um erro durante a testagem!')
-                print('-Não foi possível receber dados!')
-                return
+                # Verifica se os dados chegaram
+                if not data:
+                    print('-Ocorreu um erro durante a testagem!')
+                    print('-Não foi possível receber dados!')
+                    input()
+                    return
 
-            # Atualiza os valores
-            packageNumber += 1
-            bytesNumber += len(data.decode('ascii'))
+                # Atualiza os valores
+                packageNumber += 1
+                bytesNumber += len(data.decode('ascii'))
+                pbar.update(time.time() - startTime)
 
         # Processamento dos valores
         downloadSpeedInBytes = round((bytesNumber / 20) * 8, 2)
@@ -121,7 +126,7 @@ class SpeedTesterUDP:
 
         startTime = time.time()
 
-        while time.time() - startTime < 20:
+        while time.time() - startTime <= 20:
             self.socket2.sendto(message.encode('ascii'), addr)
 
             # Atualiza os Valores
