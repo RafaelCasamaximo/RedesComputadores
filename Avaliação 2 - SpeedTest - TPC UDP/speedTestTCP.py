@@ -2,6 +2,7 @@
 
 from email import message
 from socket import *
+from threading import local
 import time
 import random
 import os
@@ -59,6 +60,12 @@ class SpeedTesterTCP:
         packageSize = 500
         packageNumber = 0
         bytesNumber = 0
+
+        hostname = gethostname()
+        localIp = gethostbyname(hostname)
+
+        print(f'Seu HostName é: {hostname}')
+        print(f'Seu IP para conexão é: {localIp}')
 
         print('-Aguardando por conexão...')
 
