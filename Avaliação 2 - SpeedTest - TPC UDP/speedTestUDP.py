@@ -1,18 +1,21 @@
 # -*- coding: utf-8 -*-
 
-from tqdm import tqdm
-from email import message
 from socket import *
 import time
 import random
 import os
+import select
+from typing import Any
+from progress.spinner import Spinner
 
 
 class SpeedTesterUDP:
     def __init__(self) -> None:
         # Definição dos Socketes
-        self.socket = socket(AF_INET, SOCK_DGRAM)
-        self.socket2 = socket(AF_INET, SOCK_DGRAM)
+        self.mySocket = None
+        self.mySocket2 = None
+        # mySocket.setblocking(False)
+        # mySocket.setblocking(False)
 
         # Definição das Portas
         self.port = 55555
@@ -22,8 +25,8 @@ class SpeedTesterUDP:
 
     def __del__(self) -> None:
         print('Fechando Sockets')
-        self.socket.close()
-        self.socket2.close()
+        self.mySocket.close()
+        self.mySocket2.close()
         print('Sockets Encerrados')
         pass
 
@@ -39,15 +42,21 @@ class SpeedTesterUDP:
             print('Insira o que você deseja testar:')
             print('   1 - Download')
             print('   2 - Upload')
-            print('   3 - Sair')
+            print('   3 - Âmbos')
+            print('   4 - Sair')
 
             choice = int(input())
 
+            self.mySocket = socket(AF_INET, SOCK_DGRAM)
+            self.mySocket2 = socket(AF_INET, SOCK_DGRAM)
+
             if choice == 1:
-                self.downloadTest()
+                self.downloadTest(self.mySocket, self.port)
             elif choice == 2:
-                self.uploadTest()
+                self.uploadTest(self.mySocket, self.port)
             elif choice == 3:
+                self.both()
+            elif choice == 4:
                 onMenu = False
                 exit()
             else:
@@ -55,16 +64,16 @@ class SpeedTesterUDP:
 
         pass
 
-    def downloadTest(self) -> None:
+    def downloadTest(self, mySocket: Any, port: str) -> None:
 
         packageSize = 500
         packageNumber = 0
         bytesNumber = 0
 
         print('-Aguardando por conexão...')
-        self.socket.bind(('', self.port))
+        mySocket.bind(("", port))
 
-        data, addr = self.socket.recvfrom(1)
+        data, addr = mySocket.recvfrom(1)
 
         if data.decode('ascii') != '1':
             print('-Ocorreu um erro na conexão!')
@@ -77,35 +86,48 @@ class SpeedTesterUDP:
 
         # Speed Test
         # Enquanto o tempo de testagem for menor que 20 segundos
-        with tqdm(total=20) as pbar:
-            while time.time() - startTime < 20:
-                # Recebe dados
-                data, addr = self.socket.recvfrom(packageSize, timeout=2)
+        # with tqdm(total=20) as pbar:
+        mySocket.setblocking(False)
+        spinner = Spinner('Testando... ')
+        while (time.time() - startTime) < 20:
+            # Recebe dados
+            ready = select.select([mySocket], [], [], 2)
+            if ready[0]:
+                data, addr = mySocket.recvfrom(packageSize)
 
-                # Verifica se os dados chegaram
-                if not data:
-                    print('-Ocorreu um erro durante a testagem!')
-                    print('-Não foi possível receber dados!')
-                    input()
-                    return
+            # Verifica se os dados chegaram
+            if not data:
+                print('-Ocorreu um erro durante a testagem!')
+                print('-Não foi possível receber dados!')
+                return
 
-                # Atualiza os valores
-                packageNumber += 1
-                bytesNumber += len(data.decode('ascii'))
-                pbar.update(time.time() - startTime)
+            # Atualiza os valores
+            packageNumber += 1
+            bytesNumber += len(data.decode('ascii'))
+            spinner.next()
+
+            # pbar.update(time.time() - startTime)
 
         # Processamento dos valores
         downloadSpeedInBytes = round((bytesNumber / 20) * 8, 2)
         downloadSpeedInPackages = round(packageNumber / 20, 2)
+        lost = (packageSize * packageNumber - bytesNumber) / \
+            (packageSize * packageNumber) * 100
 
-        print('---Resultados do Teste de Velocidade---')
+        print('\n---Resultados do Teste de Velocidade---')
         print(f'-Velocidade de Download: {downloadSpeedInBytes}bps')
         print(
             f'-Velocidade de Download: {downloadSpeedInPackages} pacotes por segundo')
         print(f'-Número de Bytes: {bytesNumber}')
+        print(f'-Taxa de perda: {lost}%\n')
+
+        input('\nPressione uma tecla para voltar ao menu')
+
+        mySocket.close()
+
         pass
 
-    def uploadTest(self) -> None:
+    def uploadTest(self, mySocket: Any, port: str) -> None:
 
         message = ''
 
@@ -120,27 +142,55 @@ class SpeedTesterUDP:
         packageNumber = 0
         bytesNumber = 0
 
-        addr = (ip, self.port)
+        addr = (ip, port)
 
-        self.socket2.sendto('1'.encode('ascii'), addr)
+        mySocket.sendto('1'.encode('ascii'), addr)
 
         startTime = time.time()
-
-        while time.time() - startTime <= 20:
-            self.socket2.sendto(message.encode('ascii'), addr)
+        spinner = Spinner('Testando... ')
+        while time.time() - startTime < 20:
+            mySocket.sendto(message.encode('ascii'), addr)
 
             # Atualiza os Valores
             packageNumber += 1
             bytesNumber += packageSize
+            spinner.next()
 
         # Processamento dos valores
         uploadSpeedInBytes = round((bytesNumber / 20) * 8, 2)
         uploadSpeedInPackages = round(packageNumber / 20, 2)
 
-        print('---Resultados do Teste de Velocidade---')
+        print('\n\n---Resultados do Teste de Velocidade---')
         print(f'-Velocidade de Upload: {uploadSpeedInBytes}bps')
         print(
             f'-Velocidade de Upload: {uploadSpeedInPackages} pacotes por segundo')
         print(f'-Número de Bytes: {bytesNumber}')
+
+        input('\nPressione uma tecla para voltar ao menu')
+
+        mySocket.close()
+
+        pass
+
+    def both(self) -> None:
+
+        print('\nVocê gostaria de começar pelo...')
+        print('   1 - Download')
+        print('   2 - Upload')
+        print('   Outros - Sair')
+
+        choice = int(input())
+
+        if choice == 1:
+            self.downloadTest(self.mySocket, self.port)
+            self.uploadTest(self.mySocket2, self.port2)
+            pass
+        elif choice == 2:
+            self.uploadTest(self.mySocket, self.port)
+            self.downloadTest(self.mySocket2, self.port2)
+            pass
+        else:
+            exit()
+            pass
 
         pass
