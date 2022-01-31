@@ -96,6 +96,8 @@ class SpeedTesterTCP:
             f'-Velocidade de Download: {downloadSpeedInPackages} pacotes por segundo')
         print(f'-Número de Bytes: {bytesNumber}')
 
+        input()
+
         conn.close()
 
         pass
@@ -111,7 +113,7 @@ class SpeedTesterTCP:
 
         print('Informe o IP para o teste de upload: ')
         ip = input()
-        self.socket2.connect((ip, self.port2))
+        self.socket2.connect((ip, self.port))
         print("Conexão estabelecida")
 
         startTime = time.time()
