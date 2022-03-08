@@ -100,16 +100,16 @@ class SpeedTesterTCP:
             spinner.next()
 
         # Processamento dos valores
-        downloadSpeedInBytes = round((bytesNumber / 20) * 8, 2)
+        downloadSpeedInBits = round((bytesNumber / 20) * 8, 2)
         downloadSpeedInPackages = round(packageNumber / 20, 2)
         lost = (packageSize * packageNumber - bytesNumber) / \
             (packageSize * packageNumber) * 100
 
         print('\n\n---Resultados do Teste de Velocidade---')
-        print("Velocidade de Download: {:,}bps".format(downloadSpeedInBytes))
+        print("Velocidade de Download: {:,}bps".format(downloadSpeedInBits))
         print(
             f'-Velocidade de Download: {downloadSpeedInPackages} pacotes por segundo')
-        print(f'-Número de Bytes: {bytesNumber}')
+        print(f'-Número de Bits: {bytesNumber}')
         print(f'-Taxa de perda: {lost}\n')
 
         input('\nPressione uma tecla para voltar ao menu')
@@ -142,14 +142,14 @@ class SpeedTesterTCP:
             spinner.next()
 
         # Processamento dos valores
-        uploadSpeedInBytes = round((bytesNumber / 20) * 8, 2)
+        uploadSpeedInBits = round((bytesNumber / 20) * 8, 2)
         uploadSpeedInPackages = round(packageNumber / 20, 2)
 
         print('\n\n---Resultados do Teste de Velocidade---')
-        print("Velocidade de Upload: {:,}bps".format(uploadSpeedInBytes))
+        print("Velocidade de Upload: {:,}bps".format(uploadSpeedInBits))
         print(
             f'-Velocidade de Upload: {uploadSpeedInPackages} pacotes por segundo')
-        print(f'-Número de Bytes: {bytesNumber}')
+        print(f'-Número de Bits: {bytesNumber}')
 
         input('\nPressione uma tecla para voltar ao menu')
 

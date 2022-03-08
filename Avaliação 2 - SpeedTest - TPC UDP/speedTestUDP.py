@@ -109,16 +109,16 @@ class SpeedTesterUDP:
             # pbar.update(time.time() - startTime)
 
         # Processamento dos valores
-        downloadSpeedInBytes = round((bytesNumber / 20) * 8, 2)
+        downloadSpeedInBits = round((bytesNumber / 20) * 8, 2)
         downloadSpeedInPackages = round(packageNumber / 20, 2)
         lost = (packageSize * packageNumber - bytesNumber) / \
             (packageSize * packageNumber) * 100
 
         print('\n---Resultados do Teste de Velocidade---')
-        print(f'-Velocidade de Download: {downloadSpeedInBytes}bps')
+        print(f'-Velocidade de Download: {downloadSpeedInBits}bps')
         print(
             f'-Velocidade de Download: {downloadSpeedInPackages} pacotes por segundo')
-        print(f'-Número de Bytes: {bytesNumber}')
+        print(f'-Número de Bits: {bytesNumber}')
         print(f'-Taxa de perda: {lost}%\n')
 
         input('\nPressione uma tecla para voltar ao menu')
@@ -157,14 +157,14 @@ class SpeedTesterUDP:
             spinner.next()
 
         # Processamento dos valores
-        uploadSpeedInBytes = round((bytesNumber / 20) * 8, 2)
+        uploadSpeedInBits = round((bytesNumber / 20) * 8, 2)
         uploadSpeedInPackages = round(packageNumber / 20, 2)
 
         print('\n\n---Resultados do Teste de Velocidade---')
-        print(f'-Velocidade de Upload: {uploadSpeedInBytes}bps')
+        print(f'-Velocidade de Upload: {uploadSpeedInBits}bps')
         print(
             f'-Velocidade de Upload: {uploadSpeedInPackages} pacotes por segundo')
-        print(f'-Número de Bytes: {bytesNumber}')
+        print(f'-Número de Bits: {bytesNumber}')
 
         input('\nPressione uma tecla para voltar ao menu')
 
