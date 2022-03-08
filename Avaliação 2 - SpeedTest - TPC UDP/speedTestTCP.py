@@ -106,7 +106,7 @@ class SpeedTesterTCP:
             (packageSize * packageNumber) * 100
 
         print('\n\n---Resultados do Teste de Velocidade---')
-        print(f'-Velocidade de Download: {downloadSpeedInBytes}bps')
+        print("Velocidade de Download: {:,}bps".format(downloadSpeedInBytes))
         print(
             f'-Velocidade de Download: {downloadSpeedInPackages} pacotes por segundo')
         print(f'-Número de Bytes: {bytesNumber}')
@@ -146,7 +146,7 @@ class SpeedTesterTCP:
         uploadSpeedInPackages = round(packageNumber / 20, 2)
 
         print('\n\n---Resultados do Teste de Velocidade---')
-        print(f'-Velocidade de Upload: {uploadSpeedInBytes}bps')
+        print("Velocidade de Upload: {:,}bps".format(uploadSpeedInBytes))
         print(
             f'-Velocidade de Upload: {uploadSpeedInPackages} pacotes por segundo')
         print(f'-Número de Bytes: {bytesNumber}')
