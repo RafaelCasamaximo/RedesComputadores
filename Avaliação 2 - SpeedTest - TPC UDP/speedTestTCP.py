@@ -105,7 +105,7 @@ class SpeedTesterTCP:
             data = conn.recv(20)
             msg = data.decode('ascii')
         realPackageNumber = int(msg[msg.find('\n') + 1:])
-        loss = packageNumber - realPackageNumber
+        loss = realPackageNumber - packageNumber
 
         lossNumberString = str(loss)
 
@@ -117,7 +117,7 @@ class SpeedTesterTCP:
         downloadSpeedInPackages = round(packageNumber / 20, 2)
 
         print('\n\n---Resultados do Teste de Velocidade---')
-        print("Velocidade de Download: {:,}bps".format(downloadSpeedInBits))
+        print("-Velocidade de Download: {:,}bps".format(downloadSpeedInBits))
         print(
             f'-Velocidade de Download: {downloadSpeedInPackages} pacotes por segundo')
         print(f'-Número de Bits: {bytesNumber}')
@@ -163,7 +163,7 @@ class SpeedTesterTCP:
         uploadSpeedInPackages = round(packageNumber / 20, 2)
 
         print('\n\n---Resultados do Teste de Velocidade---')
-        print("Velocidade de Upload: {:,}bps".format(uploadSpeedInBits))
+        print("-Velocidade de Upload: {:,}bps".format(uploadSpeedInBits))
         print(
             f'-Velocidade de Upload: {uploadSpeedInPackages} pacotes por segundo')
         print(f'-Número de Bits: {bytesNumber}')

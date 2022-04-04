@@ -7,6 +7,7 @@ import os
 import select
 from typing import Any
 from progress.spinner import Spinner
+from math import *
 
 
 class SpeedTesterUDP:
@@ -91,7 +92,7 @@ class SpeedTesterUDP:
         spinner = Spinner('Testando... ')
         while (time.time() - startTime) < 20:
             # Recebe dados
-            ready = select.select([mySocket], [], [], 2)
+            ready = select.select([mySocket], [], [], 5)
             if ready[0]:
                 data, addr = mySocket.recvfrom(packageSize)
 
@@ -108,18 +109,25 @@ class SpeedTesterUDP:
 
             # pbar.update(time.time() - startTime)
 
+        msg = ''
+        while '\n' not in msg:
+            if ready[0]:
+                msg, addr = mySocket.recvfrom(packageSize)
+            msg = msg.decode('ascii')
+        realPackageNumber = int(msg[msg.find('\n') + 1:])
+        loss = realPackageNumber - packageNumber 
+        mySocket.sendto(str(loss).encode('ascii'), addr)
+
         # Processamento dos valores
         downloadSpeedInBits = round((bytesNumber / 20) * 8, 2)
         downloadSpeedInPackages = round(packageNumber / 20, 2)
-        lost = (packageSize * packageNumber - bytesNumber) / \
-            (packageSize * packageNumber) * 100
 
         print('\n---Resultados do Teste de Velocidade---')
-        print("Velocidade de Download: {:,}bps".format(downloadSpeedInBits))
+        print("-Velocidade de Download: {:,}bps".format(downloadSpeedInBits))
         print(
             f'-Velocidade de Download: {downloadSpeedInPackages} pacotes por segundo')
         print(f'-Número de Bits: {bytesNumber}')
-        print(f'-Taxa de perda: {lost}%\n')
+        print(f'-Pacotes Perdidos: {abs(loss)}\n')
 
         input('\nPressione uma tecla para voltar ao menu')
 
@@ -151,16 +159,22 @@ class SpeedTesterUDP:
             packageNumber += 1
             bytesNumber += packageSize
             spinner.next()
+        
+        aux = '\n' + str(packageNumber)
+        mySocket.sendto(aux.encode('ascii'), addr)
+        data, addr = mySocket.recvfrom(packageSize)
+        loss = int(data.decode('ascii'))
 
         # Processamento dos valores
         uploadSpeedInBits = round((bytesNumber / 20) * 8, 2)
         uploadSpeedInPackages = round(packageNumber / 20, 2)
 
         print('\n\n---Resultados do Teste de Velocidade---')
-        print("Velocidade de Upload: {:,}bps".format(uploadSpeedInBits))
+        print("-Velocidade de Upload: {:,}bps".format(uploadSpeedInBits))
         print(
             f'-Velocidade de Upload: {uploadSpeedInPackages} pacotes por segundo')
         print(f'-Número de Bits: {bytesNumber}')
+        print(f'-Pacotes Perdidos: {abs(loss)}')
 
         input('\nPressione uma tecla para voltar ao menu')
 
@@ -190,3 +204,47 @@ class SpeedTesterUDP:
             pass
 
         pass
+
+# UDP:
+
+# Download:
+# -Velocidade de Download: 106,954,600.0bps
+# -Velocidade de Download: 26738.65 pacotes por segundo
+# -Número de Bits: 267386500
+# -Pacotes Perdidos: 4322
+
+# -Velocidade de Download: 106,476,200.0bps
+# -Velocidade de Download: 26619.05 pacotes por segundo
+# -Número de Bits: 266190500
+# -Pacotes Perdidos: 3466
+
+# -Velocidade de Download: 108,823,400.0bps
+# -Velocidade de Download: 27205.85 pacotes por segundo
+# -Número de Bits: 272058500
+# -Pacotes Perdidos: 2623
+
+# -Velocidade de Download: 108,066,000.0bps
+# -Velocidade de Download: 27016.5 pacotes por segundo
+# -Número de Bits: 270165000
+# -Pacotes Perdidos: 1950
+
+# Upload:
+# -Velocidade de Upload: 107,819,000.0bps
+# -Velocidade de Upload: 26954.75 pacotes por segundo
+# -Número de Bits: 269547500
+# -Pacotes Perdidos: 4322
+
+# -Velocidade de Upload: 107,169,400.0bps
+# -Velocidade de Upload: 26792.35 pacotes por segundo
+# -Número de Bits: 267923500
+# -Pacotes Perdidos: 3466
+
+# -Velocidade de Upload: 109,348,000.0bps
+# -Velocidade de Upload: 27337.0 pacotes por segundo
+# -Número de Bits: 273370000
+# -Pacotes Perdidos: 2623
+
+# -Velocidade de Upload: 108,456,000.0bps
+# -Velocidade de Upload: 27114.0 pacotes por segundo
+# -Número de Bits: 271140000
+# -Pacotes Perdidos: 1950
