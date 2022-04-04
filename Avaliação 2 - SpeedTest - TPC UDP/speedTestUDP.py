@@ -115,7 +115,7 @@ class SpeedTesterUDP:
             (packageSize * packageNumber) * 100
 
         print('\n---Resultados do Teste de Velocidade---')
-        print(f'-Velocidade de Download: {downloadSpeedInBits}bps')
+        print("Velocidade de Download: {:,}bps".format(downloadSpeedInBits))
         print(
             f'-Velocidade de Download: {downloadSpeedInPackages} pacotes por segundo')
         print(f'-Número de Bits: {bytesNumber}')
@@ -129,11 +129,7 @@ class SpeedTesterUDP:
 
     def uploadTest(self, mySocket: Any, port: str) -> None:
 
-        message = ''
-
-        for i in range(500):
-            # Gera ascii aleatorios
-            message += chr(random.randint(48, 122))
+        message = msg = 'teste de rede *2022*' * 25
 
         print('Informe o IP para o teste de upload: ')
         ip = input()
@@ -161,7 +157,7 @@ class SpeedTesterUDP:
         uploadSpeedInPackages = round(packageNumber / 20, 2)
 
         print('\n\n---Resultados do Teste de Velocidade---')
-        print(f'-Velocidade de Upload: {uploadSpeedInBits}bps')
+        print("Velocidade de Upload: {:,}bps".format(uploadSpeedInBits))
         print(
             f'-Velocidade de Upload: {uploadSpeedInPackages} pacotes por segundo')
         print(f'-Número de Bits: {bytesNumber}')

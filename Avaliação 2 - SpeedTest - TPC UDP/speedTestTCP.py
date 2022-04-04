@@ -99,18 +99,29 @@ class SpeedTesterTCP:
             bytesNumber += len(data.decode('ascii'))
             spinner.next()
 
+        # Responsável por receber o número real de pacotes transmitidos
+        msg = ''
+        while '\n' not in msg:
+            data = conn.recv(20)
+            msg = data.decode('ascii')
+        realPackageNumber = int(msg[msg.find('\n') + 1:])
+        loss = packageNumber - realPackageNumber
+
+        lossNumberString = str(loss)
+
+        # Envia de volta o valor da perda de pacotes que foi recebido e calculado
+        conn.send(lossNumberString.encode('ascii'))
+        
         # Processamento dos valores
         downloadSpeedInBits = round((bytesNumber / 20) * 8, 2)
         downloadSpeedInPackages = round(packageNumber / 20, 2)
-        lost = (packageSize * packageNumber - bytesNumber) / \
-            (packageSize * packageNumber) * 100
 
         print('\n\n---Resultados do Teste de Velocidade---')
         print("Velocidade de Download: {:,}bps".format(downloadSpeedInBits))
         print(
             f'-Velocidade de Download: {downloadSpeedInPackages} pacotes por segundo')
         print(f'-Número de Bits: {bytesNumber}')
-        print(f'-Taxa de perda: {lost}\n')
+        print(f'-Pacotes Perdidos: {abs(loss)}\n')
 
         input('\nPressione uma tecla para voltar ao menu')
 
@@ -120,9 +131,7 @@ class SpeedTesterTCP:
 
     def uploadTest(self, mySocket: Any, port: str) -> None:
 
-        message = ''
-        for i in range(500):
-            message += chr(random.randint(48, 122))
+        message = 'teste de rede *2022*' * 25
         packageSize = 500
         packageNumber = 0
         bytesNumber = 0
@@ -141,6 +150,14 @@ class SpeedTesterTCP:
             bytesNumber += packageSize
             spinner.next()
 
+        # Após o teste da internet o upload envia para o download
+        # a quantidade de pacortes que foi enviado para ele poder
+        # comparar com a quantidade de pacotes que chegou
+        packageNumberString = '\n' + str(packageNumber)
+        mySocket.send(packageNumberString.encode('ascii'))
+
+        loss = int(mySocket.recv(20).decode('ascii'))
+
         # Processamento dos valores
         uploadSpeedInBits = round((bytesNumber / 20) * 8, 2)
         uploadSpeedInPackages = round(packageNumber / 20, 2)
@@ -150,6 +167,7 @@ class SpeedTesterTCP:
         print(
             f'-Velocidade de Upload: {uploadSpeedInPackages} pacotes por segundo')
         print(f'-Número de Bits: {bytesNumber}')
+        print(f'-Pacotes Perdidos: {abs(loss)}')
 
         input('\nPressione uma tecla para voltar ao menu')
 
@@ -177,3 +195,48 @@ class SpeedTesterTCP:
             pass
 
         pass
+
+
+# TCP:
+
+# Download:
+# -Velocidade de Download: 167,552,200.0bps
+# -Velocidade de Download: 41888.05 pacotes por segundo
+# -Número de Bits: 418880500
+# -Pacotes Perdidos: 8765
+
+# -Velocidade de Download: 171,744,600.0bps
+# -Velocidade de Download: 42936.15 pacotes por segundo
+# -Número de Bits: 429361500
+# -Pacotes Perdidos: 165
+
+# -Velocidade de Download: 164,479,004.8bps
+# -Velocidade de Download: 41201.2 pacotes por segundo
+# -Número de Bits: 411197512
+# -Pacotes Perdidos: 2427
+
+# -Velocidade de Download: 163,199,200.0bps
+# -Velocidade de Download: 40799.8 pacotes por segundo
+# -Número de Bits: 407998000
+# -Pacotes Perdidos: 899
+
+# Upload:
+# -Velocidade de Upload: 171,777,600.0bps
+# -Velocidade de Upload: 42944.4 pacotes por segundo
+# -Número de Bits: 429444000
+# -Pacotes Perdidos: 165
+
+# -Velocidade de Upload: 169,305,200.0bps
+# -Velocidade de Upload: 42326.3 pacotes por segundo
+# -Número de Bits: 423263000
+# -Pacotes Perdidos: 8765
+
+# -Velocidade de Upload: 165,290,200.0bps
+# -Velocidade de Upload: 41322.55 pacotes por segundo
+# -Número de Bits: 413225500
+# -Pacotes Perdidos: 2427
+
+# -Velocidade de Upload: 163,379,000.0bps
+# -Velocidade de Upload: 40844.75 pacotes por segundo
+# -Número de Bits: 408447500
+# -Pacotes Perdidos: 899
