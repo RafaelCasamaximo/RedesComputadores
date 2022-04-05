@@ -109,12 +109,14 @@ class SpeedTesterUDP:
 
             # pbar.update(time.time() - startTime)
 
+        realPackageNumber = 0
         msg = ''
         while '\n' not in msg:
+            ready = select.select([mySocket], [], [], 2)
             if ready[0]:
                 msg, addr = mySocket.recvfrom(packageSize)
-            msg = msg.decode('ascii')
-        realPackageNumber = int(msg[msg.find('\n') + 1:])
+                msg = msg.decode('ascii')
+                realPackageNumber = int(msg[msg.find('\n') + 1:])
         loss = realPackageNumber - packageNumber 
         mySocket.sendto(str(loss).encode('ascii'), addr)
 
